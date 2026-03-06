@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.6.0 - 2026-03-06
+- Switched template to module-first entrypoint policy:
+  - removed required `src/<package>/main.py` scaffold
+  - `src/<package>/__main__.py` now contains a self-contained `main()` shim
+  - restored `src/<package>/__init__.py` exports to version-oriented module defaults.
+- Added baseline module scaffolding for generated projects:
+  - `src/<package>/constants.py`
+  - `src/<package>/runtime_paths.py`
+  - `src/<package>/utils/__init__.py`
+  - `src/<package>/utils/logging_config.py`.
+- Added required pytest structure for generated projects:
+  - `tests/conftest.py` with shared `window` fixture
+  - package dirs: `tests/unit/`, `tests/integration/`, `tests/gui/` with `__init__.py`.
+- Expanded policy checker to enforce new baseline scaffold files and provide non-blocking guidance for:
+  - missing public docstrings
+  - silent `except Exception: pass` patterns.
+- Removed hardcoded `deptry` `package_module_name_map` from template `pyproject.toml`.
+- Replaced personal Copier defaults with neutral `author_name` / `author_email` defaults.
+- Added rollout documentation: `COPIER_ROLLOUT_RUNBOOK.md`.
+- Added `aatemplate` agent note clarifying module-first entrypoint policy to prevent `main.py` confusion.
+
 ## v1.5.7 - 2026-03-06
 - Added `*.log` to standardized `.gitignore` rules for template and project repos.
 - Ensures runtime log files remain untracked by default across all managed projects.

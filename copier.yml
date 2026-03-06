@@ -24,12 +24,12 @@ description:
 author_name:
   type: str
   help: Author name
-  default: "MT0z"
+  default: "Your Name"
 
 author_email:
   type: str
   help: Author email
-  default: "mt0z1@pir0z.yxz"
+  default: "you@example.com"
 
 github_username:
   type: str

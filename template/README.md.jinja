@@ -10,6 +10,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
+- [Logging](#logging)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Menus](#menus)
 - [Project Structure](#project-structure)
@@ -127,6 +128,14 @@ Override contract (OV01):
 - `CONFIG_DIR`: overrides INI directory (resolved as `<CONFIG_DIR>\<package_name>.ini`)
 - `DATA_DIR`: overrides non-INI runtime root (resolved as `<DATA_DIR>\<package_name>\...`)
 
+## Logging
+
+Runtime logging is initialized through `{{ package_name }}.utils.logging_config.setup_logging()`.
+
+- logger naming convention: `logging.getLogger(__name__)`
+- rotating file logs under runtime data path: `<DATA_DIR>\<package_name>\logs\{{ package_name }}.log`
+- console logging enabled by default for local troubleshooting
+
 ## Keyboard Shortcuts
 
 <!-- TODO: Add shortcut table. -->
@@ -147,8 +156,14 @@ Override contract (OV01):
 |-- uv.lock
 |-- src/
 |   `-- {{ package_name }}/
+|       |-- constants.py
 |       |-- __init__.py
-|       `-- __main__.py
+|       |-- __main__.py
+|       |-- runtime_paths.py
+|       |-- py.typed
+|       `-- utils/
+|           |-- __init__.py
+|           `-- logging_config.py
 |-- scripts/
 |   |-- policy/
 |   |   `-- check_standard.py
@@ -158,7 +173,15 @@ Override contract (OV01):
 |       |-- run_tests.py
 |       `-- setup_env.py
 |-- tests/
-|   `-- test_{{ package_name }}.py
+|   |-- __init__.py
+|   |-- conftest.py
+|   |-- test_{{ package_name }}.py
+|   |-- unit/
+|   |   `-- __init__.py
+|   |-- integration/
+|   |   `-- __init__.py
+|   `-- gui/
+|       `-- __init__.py
 `-- .pre-commit-config.yaml
 ```
 
