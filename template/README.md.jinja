@@ -2,35 +2,93 @@
 
 {{ description }}
 
-## Quickstart
+## Table of Contents
 
-```powershell
+- [Features](#features)
+- [UI Walkthrough](#ui-walkthrough)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Menus](#menus)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
+- [Legal Disclaimer](#legal-disclaimer)
+
+## Features
+
+<!-- TODO: List key capabilities as bullet points. -->
+
+## UI Walkthrough
+
+1. Overview state.
+
+   ![Overview](docs/images/ui-01-overview.png)
+
+   <!-- TODO: Describe what the overview screenshot shows. -->
+
+2. Workflow state.
+
+   ![Workflow](docs/images/ui-02-workflow.png)
+
+   <!-- TODO: Describe what the workflow screenshot shows. -->
+
+3. Detail/action state.
+
+   ![Details](docs/images/ui-03-details.png)
+
+   <!-- TODO: Describe what the detail screenshot shows. -->
+
+## Requirements
+
+- **Windows** (10 or later)
+- **Python 3.13+**
+<!-- TODO: Add external dependencies (ffprobe, qBittorrent, etc.) if any. -->
+
+## Installation
+
+### First-time Setup
+
+```bat
 python scripts\windows\setup_env.py
-uv lock
-hatch env create
-hatch run test
-hatch run lint:all
 ```
 
-## Daily Commands
+Creates the `.venv` by running `uv sync --locked` (falls back to `uv sync` if no lockfile).
 
-- `hatch run test`
-- `hatch run test-cov`
-- `hatch run lint:check`
-- `hatch run lint:fmt`
-- `hatch run lint:types`
-- `hatch run lint:policy`
-- `hatch run lint:all`
-- `hatch build`
+Manual alternative for development:
 
-## Windows Helpers
+```bat
+uv sync --group dev
+```
 
-- `python scripts\windows\setup_env.py`
-- `python scripts\windows\run_app.py`
-- `pyw scripts\windows\run_app_gui.pyw`
-- `python scripts\windows\run_tests.py`
+## Usage
 
-## Configuration Convention
+### Recommended (console-less)
+
+```bat
+pyw scripts\windows\run_app_gui.pyw
+```
+
+Launches the GUI without a console window. Auto-bootstraps the `.venv` via `setup_env.py` if not yet created.
+
+### With console
+
+```bat
+python scripts\windows\run_app.py
+```
+
+Runs via `hatch run python -m {{ package_name }}`. Requires `hatch` in PATH.
+
+### Direct
+
+```bat
+python -m {{ package_name }}
+```
+
+## Configuration
 
 Projects that use TOML app configuration follow this contract:
 
@@ -48,12 +106,85 @@ Runtime precedence:
 Secret file default locations:
 
 - Windows: `%APPDATA%/<app>/secrets.toml`
-- Linux/macOS: `~/.config/<app>/secrets.toml`
 
 Global optional env vars:
 
 - `APP_CONFIG_PATH`
 - `APP_SECRETS_PATH`
+
+## Keyboard Shortcuts
+
+<!-- TODO: Add shortcut table. -->
+
+| Key | Action |
+|---|---|
+| Alt+X | Exit application |
+
+## Menus
+
+<!-- TODO: Document menu bar structure. -->
+
+## Project Structure
+
+```text
+{{ project_name }}/
+|-- pyproject.toml
+|-- uv.lock
+|-- src/
+|   `-- {{ package_name }}/
+|       |-- __init__.py
+|       `-- __main__.py
+|-- scripts/
+|   |-- policy/
+|   |   `-- check_standard.py
+|   `-- windows/
+|       |-- run_app.py
+|       |-- run_app_gui.pyw
+|       |-- run_tests.py
+|       `-- setup_env.py
+|-- tests/
+|   `-- test_{{ package_name }}.py
+`-- .pre-commit-config.yaml
+```
+
+## Architecture
+
+<!-- TODO: Describe module layout, threading model, key design decisions. -->
+
+## Development
+
+### Windows Helpers
+
+| Script | Description |
+|---|---|
+| `python scripts\windows\setup_env.py` | Create/verify `.venv` via `uv sync --locked` |
+| `pyw scripts\windows\run_app_gui.pyw` | Launch GUI without console window (auto-bootstraps venv) |
+| `python scripts\windows\run_app.py` | Launch app via `hatch run` (requires hatch in PATH) |
+| `python scripts\windows\run_tests.py` | Run test suite via `hatch run test` |
+
+### Daily Commands
+
+```bat
+hatch run test
+hatch run test-cov
+hatch run lint:check
+hatch run lint:fmt
+hatch run lint:types
+hatch run lint:policy
+hatch run lint:all
+hatch build
+```
+
+### Lockfile Workflow
+
+```bat
+uv lock
+uv lock --check
+```
+
+## Troubleshooting
+
+<!-- TODO: Document common issues and fixes. -->
 
 ---
 
