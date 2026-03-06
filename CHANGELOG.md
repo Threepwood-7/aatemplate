@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.6.0 - 2026-03-06
+## v1.6.1 - 2026-03-06
 - Switched template to module-first entrypoint policy:
   - removed required `src/<package>/main.py` scaffold
   - `src/<package>/__main__.py` now contains a self-contained `main()` shim
