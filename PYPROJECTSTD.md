@@ -42,6 +42,15 @@ REQUIREMENTS OVERVIEW
   - tracked config/app.example.toml
   - untracked config/app.local.toml
   - reject legacy root config names (config.toml, *_config.toml, *_config_example.toml, *_config_totemp.toml)
+- QSettings runtime contract for Qt/PySide apps (when applicable):
+  - use `QSettings(IniFormat, UserScope, "ThreepSoftwz", "<package_name>")`
+  - default INI path (Windows): `%APPDATA%\ThreepSoftwz\<package_name>.ini`
+  - default non-INI runtime data root (Windows): `%LOCALAPPDATA%\ThreepSoftwz\<package_name>\`
+  - OV01 overrides:
+    - `CONFIG_DIR` => `<CONFIG_DIR>\<package_name>.ini`
+    - `DATA_DIR` => `<DATA_DIR>\<package_name>\...`
+  - if CLI parser exists, expose `--config-dir` and `--data-dir`
+  - override precedence: CLI > env > default
 
 DIRECTORY STRUCTURE
 {PROJECT_NAME}/
@@ -176,6 +185,18 @@ FILE REQUIREMENTS
      *_config_example.toml
      *_config_totemp.toml
 
+12.1) QSettings policy for Qt/PySide projects (conditional):
+   - use `QSettings(IniFormat, UserScope, "ThreepSoftwz", "<package_name>")`
+   - default INI path on Windows: `%APPDATA%\ThreepSoftwz\<package_name>.ini`
+   - default non-INI runtime data root on Windows: `%LOCALAPPDATA%\ThreepSoftwz\<package_name>\`
+   - OV01 override contract:
+     - `CONFIG_DIR` => `<CONFIG_DIR>\<package_name>.ini`
+     - `DATA_DIR` => `<DATA_DIR>\<package_name>\...`
+   - if CLI argument parsing already exists, expose:
+     - `--config-dir`
+     - `--data-dir`
+   - override precedence: CLI > env > default
+
 13) README legal disclaimer policy:
    - README.md must be tracked
    - include markers exactly:
@@ -239,9 +260,14 @@ RULES TO ENFORCE
 14. Enforce LF text endings for tracked text files and keep .gitattributes rule `* text=auto eol=lf`.
 15. If TOML app config is used, enforce canonical config/app.defaults.toml + config/app.example.toml and keep config/app.local.toml untracked.
 16. Do not track legacy root config filenames (config.toml, *_config.toml, *_config_example.toml, *_config_totemp.toml).
-17. Enforce policy checks via scripts/policy/check_standard.py in CI and pre-commit.
-18. Enforce README legal disclaimer markers and exact canonical content from aatemplate/legal_disclaimer.md.
-19. Do not reintroduce deprecated template ignore entries: w_ignore_prompt*.txt and .everything_sdk/.
+17. For Qt/PySide projects using QSettings, enforce OV01:
+    - org/app naming: `ThreepSoftwz` + `<package_name>`
+    - defaults: `%APPDATA%\ThreepSoftwz\<package_name>.ini` and `%LOCALAPPDATA%\ThreepSoftwz\<package_name>\...`
+    - overrides: `CONFIG_DIR`, `DATA_DIR`; CLI flags where parser already exists
+    - precedence: CLI > env > default
+18. Enforce policy checks via scripts/policy/check_standard.py in CI and pre-commit.
+19. Enforce README legal disclaimer markers and exact canonical content from aatemplate/legal_disclaimer.md.
+20. Do not reintroduce deprecated template ignore entries: w_ignore_prompt*.txt and .everything_sdk/.
 
 VALIDATION CHECKLIST
 - hatch run lint:check

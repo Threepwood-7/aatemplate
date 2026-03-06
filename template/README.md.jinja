@@ -90,6 +90,8 @@ python -m {{ package_name }}
 
 ## Configuration
 
+### TOML app config (when used)
+
 Projects that use TOML app configuration follow this contract:
 
 - tracked defaults: `config/app.defaults.toml`
@@ -111,6 +113,19 @@ Global optional env vars:
 
 - `APP_CONFIG_PATH`
 - `APP_SECRETS_PATH`
+
+### QSettings runtime config (Qt/PySide apps)
+
+For Qt apps that persist settings with QSettings, use this convention:
+
+- backend: `QSettings(IniFormat, UserScope, "ThreepSoftwz", "<package_name>")`
+- default INI path (Windows): `%APPDATA%\ThreepSoftwz\<package_name>.ini`
+- default non-INI runtime data root (Windows): `%LOCALAPPDATA%\ThreepSoftwz\<package_name>\`
+
+Override contract (OV01):
+
+- `CONFIG_DIR`: overrides INI directory (resolved as `<CONFIG_DIR>\<package_name>.ini`)
+- `DATA_DIR`: overrides non-INI runtime root (resolved as `<DATA_DIR>\<package_name>\...`)
 
 ## Keyboard Shortcuts
 
