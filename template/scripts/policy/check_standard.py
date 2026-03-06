@@ -44,6 +44,8 @@ SRC_MODULE_RE = re.compile(r"^[a-z_][a-z0-9_]*\.py$")
 TEST_FILE_RE = re.compile(r"^test_[a-z0-9_]*\.py$")
 PROJECT_NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PACKAGE_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+ALL_EXPORT_RE = re.compile(r"^\s*__all__\s*=", flags=re.MULTILINE)
+MAX_SRC_FILE_LINES = 600
 LEGACY_ROOT_CONFIG_PATTERNS = (
     "config.toml",
     "config_example.toml",
@@ -123,6 +125,12 @@ def normalize_newlines(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
+def count_text_lines(text: str) -> int:
+    if not text:
+        return 0
+    return text.count("\n") + 1
+
+
 def check_legal_disclaimer(readme_content: str, errors: list[str]) -> None:
     pattern = re.compile(
         rf"{re.escape(LEGAL_DISCLAIMER_START)}\s*(.*?)\s*{re.escape(LEGAL_DISCLAIMER_END)}",
@@ -188,6 +196,7 @@ def require_string_list(
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[2]
     errors: list[str] = []
+    warnings: list[str] = []
 
     try:
         tracked = tracked_files(repo_root)
@@ -284,6 +293,18 @@ def main() -> int:
             package_file = f"src/{package_name}/{rel}"
             if package_file not in tracked_set:
                 errors.append(f"Missing required tracked file: {package_file}")
+        package_init_file = f"src/{package_name}/__init__.py"
+        if package_init_file in tracked_set:
+            try:
+                package_init_content = (repo_root / package_init_file).read_text(
+                    encoding="utf-8",
+                    errors="ignore",
+                )
+            except OSError as exc:
+                errors.append(f"Unable to read {package_init_file} for __all__ policy: {exc}")
+            else:
+                if not ALL_EXPORT_RE.search(package_init_content):
+                    errors.append(f"Missing required __all__ export list in {package_init_file}")
 
     for rel in tracked:
         lower = rel.lower()
@@ -327,6 +348,20 @@ def main() -> int:
             if not TEST_FILE_RE.match(filename):
                 errors.append(f"Non-standard test filename in tests/: {rel}")
 
+        if rel.startswith("src/"):
+            abs_path = repo_root / rel
+            try:
+                line_count = count_text_lines(
+                    abs_path.read_text(encoding="utf-8", errors="ignore")
+                )
+            except OSError:
+                continue
+            if line_count > MAX_SRC_FILE_LINES:
+                warnings.append(
+                    f"Python source file exceeds {MAX_SRC_FILE_LINES} lines "
+                    f"({line_count}): {rel}"
+                )
+
     if package_name:
         banned_launch_ref = f"python -m {package_name}.main"
         for rel in tracked:
@@ -361,7 +396,18 @@ def main() -> int:
         print("Project policy check failed with the following issues:", file=sys.stderr)
         for issue in errors:
             print(f"- {issue}", file=sys.stderr)
+        if warnings:
+            print("Project policy check warnings:", file=sys.stderr)
+            for issue in warnings:
+                print(f"- {issue}", file=sys.stderr)
         return 1
+
+    if warnings:
+        print("Project policy check warnings:")
+        for issue in warnings:
+            print(f"- {issue}")
+        print("Project policy check passed with warnings.")
+        return 0
 
     print("Project policy check passed.")
     return 0
