@@ -1,0 +1,62 @@
+name: Template CI
+
+on:
+  push:
+    branches: [develop, main, master]
+  pull_request:
+    branches: [develop, main, master]
+  workflow_dispatch:
+
+jobs:
+  validate-template:
+    name: Validate Template
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Lint template policy script
+        run: uvx ruff check template/scripts/policy/check_standard.py
+
+      - name: Smoke render template
+        run: |
+          uvx copier copy --trust --defaults . .tmp_template_ci -d project_name=ci-smoke -d package_name=ci_smoke -d description="CI smoke template render"
+
+      - name: Validate rendered template policy
+        run: |
+          git -C .tmp_template_ci init -b develop
+          git -C .tmp_template_ci add -A
+          python .tmp_template_ci/scripts/policy/check_standard.py
+
+      - name: Validate rendered workflow quality steps
+        run: |
+          @'
+          from pathlib import Path
+
+          workflow = Path(".tmp_template_ci/.github/workflows/ci.yml").read_text(encoding="utf-8")
+          required = [
+              "hatch run lint:check",
+              "hatch run lint:fmt",
+              "hatch run lint:types",
+              "hatch run lint:policy",
+              "gitleaks/gitleaks-action@v2",
+              "hatch run test-cov",
+          ]
+          missing = [item for item in required if item not in workflow]
+          if missing:
+              raise SystemExit(f"Missing required workflow checks: {missing}")
+          '@ | python -
+
+      - name: Run secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
