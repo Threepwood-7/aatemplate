@@ -10,11 +10,11 @@ _exclude:
 
 project_name:
   type: str
-  help: Project directory and distribution name (e.g. my-project)
+  help: Project directory and distribution name in kebab-case (e.g. my-project)
 
 package_name:
   type: str
-  help: Python package name (underscores)
+  help: Python package name in snake_case (underscores)
   default: "{{ project_name | replace('-', '_') }}"
 
 description:

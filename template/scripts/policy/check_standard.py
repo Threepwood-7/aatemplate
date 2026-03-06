@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+import tomllib
 from fnmatch import fnmatch
 from pathlib import Path
 
@@ -41,6 +42,8 @@ WINDOWS_SCRIPT_REQUIRED = (
 PACKAGE_REQUIRED = ("__init__.py", "__main__.py", "py.typed")
 SRC_MODULE_RE = re.compile(r"^[a-z_][a-z0-9_]*\.py$")
 TEST_FILE_RE = re.compile(r"^test_[a-z0-9_]*\.py$")
+PROJECT_NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+PACKAGE_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 LEGACY_ROOT_CONFIG_PATTERNS = (
     "config.toml",
     "config_example.toml",
@@ -50,6 +53,28 @@ LEGACY_ROOT_CONFIG_PATTERNS = (
 )
 CANONICAL_CONFIG_REQUIRED = ("config/app.defaults.toml", "config/app.example.toml")
 CANONICAL_CONFIG_LOCAL = "config/app.local.toml"
+REQUIRED_NAMING_RULE = "N"
+REQUIRED_QT_NAMING_IGNORES = {
+    "activateWindow",
+    "closeEvent",
+    "eventFilter",
+    "filterAcceptsRow",
+    "headerData",
+    "highlightBlock",
+    "isActive",
+    "isRunning",
+    "keyPressEvent",
+    "lessThan",
+    "mouseReleaseEvent",
+    "paintEvent",
+    "requestInterruption",
+    "setApplicationDisplayName",
+    "setApplicationName",
+    "setOrganizationName",
+    "showEvent",
+    "showNormal",
+    "windowState",
+}
 LEGAL_DISCLAIMER_START = "<!-- legal-disclaimer:start -->"
 LEGAL_DISCLAIMER_END = "<!-- legal-disclaimer:end -->"
 LEGAL_DISCLAIMER_REQUIRED = """
@@ -119,6 +144,47 @@ def check_legal_disclaimer(readme_content: str, errors: list[str]) -> None:
         )
 
 
+def load_pyproject(repo_root: Path, errors: list[str]) -> dict[str, object]:
+    pyproject_path = repo_root / "pyproject.toml"
+    if not pyproject_path.exists():
+        return {}
+    try:
+        data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        errors.append(f"invalid pyproject.toml ({exc})")
+        return {}
+    if not isinstance(data, dict):
+        errors.append("pyproject.toml must be a table")
+        return {}
+    return data
+
+
+def require_table(
+    table: dict[str, object],
+    key: str,
+    errors: list[str],
+    label: str,
+) -> dict[str, object]:
+    value = table.get(key)
+    if not isinstance(value, dict):
+        errors.append(f"Missing or invalid [{label}] table in pyproject.toml")
+        return {}
+    return value
+
+
+def require_string_list(
+    table: dict[str, object],
+    key: str,
+    errors: list[str],
+    label: str,
+) -> list[str]:
+    value = table.get(key)
+    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+        errors.append(f"Missing or invalid [{label}.{key}] list in pyproject.toml")
+        return []
+    return [item for item in value if isinstance(item, str)]
+
+
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[2]
     errors: list[str] = []
@@ -148,6 +214,53 @@ def main() -> int:
         package_name = ""
     else:
         package_name = src_packages[0].name
+        if not PACKAGE_NAME_RE.fullmatch(package_name):
+            errors.append(
+                f"Package directory name must be snake_case under src/: {package_name}"
+            )
+
+    pyproject = load_pyproject(repo_root, errors)
+    if pyproject:
+        project_table = require_table(pyproject, "project", errors, "project")
+        project_name = project_table.get("name")
+        if not isinstance(project_name, str) or not project_name.strip():
+            errors.append("project.name must be a non-empty string in pyproject.toml")
+        elif not PROJECT_NAME_RE.fullmatch(project_name):
+            errors.append(f"project.name must be kebab-case: {project_name}")
+
+        tool_table = require_table(pyproject, "tool", errors, "tool")
+        basedpyright_table = require_table(tool_table, "basedpyright", errors, "tool.basedpyright")
+        if basedpyright_table and basedpyright_table.get("typeCheckingMode") != "strict":
+            errors.append("tool.basedpyright.typeCheckingMode must be strict")
+
+        ruff_table = require_table(tool_table, "ruff", errors, "tool.ruff")
+        if ruff_table:
+            lint_table = require_table(ruff_table, "lint", errors, "tool.ruff.lint")
+            if lint_table:
+                select_rules = require_string_list(lint_table, "select", errors, "tool.ruff.lint")
+                if select_rules and REQUIRED_NAMING_RULE not in set(select_rules):
+                    errors.append("tool.ruff.lint.select must include naming rule 'N'")
+
+                pep8_naming_table = require_table(
+                    lint_table,
+                    "pep8-naming",
+                    errors,
+                    "tool.ruff.lint.pep8-naming",
+                )
+                if pep8_naming_table:
+                    ignore_names = require_string_list(
+                        pep8_naming_table,
+                        "ignore-names",
+                        errors,
+                        "tool.ruff.lint.pep8-naming",
+                    )
+                    if ignore_names:
+                        missing_ignores = sorted(REQUIRED_QT_NAMING_IGNORES - set(ignore_names))
+                        if missing_ignores:
+                            errors.append(
+                                "tool.ruff.lint.pep8-naming.ignore-names is missing required Qt "
+                                f"exceptions: {', '.join(missing_ignores)}"
+                            )
 
     for rel in ROOT_REQUIRED:
         if rel not in tracked_set:

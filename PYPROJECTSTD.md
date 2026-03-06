@@ -21,6 +21,7 @@ REQUIREMENTS OVERVIEW
 - Lockfile: uv.lock committed to git
 - Lint/format: Ruff
 - Naming style enforcement: Ruff pep8-naming (`N` rules)
+- Naming conventions: kebab-case `project.name`, snake_case package directory under `src/`
 - Type checking: basedpyright strict
 - Testing: pytest + pytest-cov + pytest-qt
 - Test helper deps in Hatch envs: PySide6>=6.10.2, qbittorrent-api>=2025.11.1
@@ -103,6 +104,7 @@ FILE REQUIREMENTS
      all = ["ruff check --fix .", "ruff format .", "basedpyright src/{PACKAGE_NAME}", "python scripts/policy/check_standard.py"]
    - [tool.ruff] target-version = "py313", src = ["src"]
    - [tool.ruff.lint.select] includes `N`
+   - [tool.ruff.lint.pep8-naming.ignore-names] includes the canonical Qt override method allow-list
    - [tool.basedpyright] typeCheckingMode = "strict"
    - [tool.coverage.report] fail_under = 80
 
