@@ -1,0 +1,33 @@
+# aatemplate
+
+Copier template source for the Python project standard used in this workspace.
+
+This template has also been a learning process for me, and it keeps improving as I apply it to real projects.
+
+## What It Standardizes
+
+- Python 3.13 baseline
+- `src/` layout
+- Hatch + uv workflow
+- Ruff + basedpyright strict + pytest baseline
+- Windows-first CI
+- Policy enforcement via `scripts/policy/check_standard.py`
+
+## Template Usage
+
+Apply template to a project:
+
+```powershell
+uvx copier copy --trust --force --vcs-ref <TEMPLATE_TAG> <PATH_TO_AATEMPLATE> <PATH_TO_PROJECT> --data-file <PROJECT_DATA_YAML>
+```
+
+Update an existing templated project:
+
+```powershell
+uvx copier update --trust --defaults --vcs-ref <TEMPLATE_TAG>
+```
+
+## Notes
+
+- `aatemplate` is the template source repository.
+- Sibling repositories in `c:\prj\p2p\ongithub` are template targets.

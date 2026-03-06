@@ -1,0 +1,64 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Quickstart
+
+```powershell
+python scripts\windows\setup_env.py
+uv lock
+hatch env create
+hatch run test
+hatch run lint:all
+```
+
+## Daily Commands
+
+- `hatch run test`
+- `hatch run test-cov`
+- `hatch run lint:check`
+- `hatch run lint:fmt`
+- `hatch run lint:types`
+- `hatch run lint:policy`
+- `hatch run lint:all`
+- `hatch build`
+
+## Windows Helpers
+
+- `python scripts\windows\setup_env.py`
+- `python scripts\windows\run_app.py`
+- `pyw scripts\windows\run_app_gui.pyw`
+- `python scripts\windows\run_tests.py`
+
+## Configuration Convention
+
+Projects that use TOML app configuration follow this contract:
+
+- tracked defaults: `config/app.defaults.toml`
+- tracked template: `config/app.example.toml`
+- untracked local overrides: `config/app.local.toml`
+
+Runtime precedence:
+
+1. `config/app.defaults.toml`
+2. `config/app.local.toml` (or `APP_CONFIG_PATH` when set)
+3. secret file (`APP_SECRETS_PATH` or OS user path)
+4. environment secret overrides
+
+Secret file default locations:
+
+- Windows: `%APPDATA%/<app>/secrets.toml`
+- Linux/macOS: `~/.config/<app>/secrets.toml`
+
+Global optional env vars:
+
+- `APP_CONFIG_PATH`
+- `APP_SECRETS_PATH`
+
+---
+
+<!-- legal-disclaimer:start -->
+## Legal Disclaimer
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, OR QUIET ENJOYMENT. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHORS, CONTRIBUTORS, MAINTAINERS, DISTRIBUTORS, AND AFFILIATED PARTIES SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF DATA, PROFITS, GOODWILL, BUSINESS OPPORTUNITY, OR SERVICE INTERRUPTION, ARISING OUT OF OR RELATING TO THE USE OF, OR INABILITY TO USE, THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THIS SOFTWARE HAS BEEN DEVELOPED, IN WHOLE OR IN PART, BY "INTELLIGENT TOOLS"; ACCORDINGLY, OUTPUTS MAY CONTAIN ERRORS OR OMISSIONS, AND YOU ASSUME FULL RESPONSIBILITY FOR INDEPENDENT VALIDATION, TESTING, LEGAL COMPLIANCE, AND SAFE OPERATION PRIOR TO ANY RELIANCE OR DEPLOYMENT.
+<!-- legal-disclaimer:end -->

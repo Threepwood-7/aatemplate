@@ -1,0 +1,47 @@
+_answers_file: .copier-answers.yml
+_subdirectory: template
+_templates_suffix: .jinja
+_skip_if_exists:
+  - README.md
+  - src/*/__init__.py
+  - src/*/__main__.py
+_exclude:
+  - python-project-standard-prompt.md
+
+project_name:
+  type: str
+  help: Project directory and distribution name (e.g. my-project)
+
+package_name:
+  type: str
+  help: Python package name (underscores)
+  default: "{{ project_name | replace('-', '_') }}"
+
+description:
+  type: str
+  help: Short project description
+
+author_name:
+  type: str
+  help: Author name
+  default: "MT0z"
+
+author_email:
+  type: str
+  help: Author email
+  default: "mt0z1@pir0z.yxz"
+
+github_username:
+  type: str
+  help: GitHub username
+  default: "Threepwood-7"
+
+project_version:
+  type: str
+  help: Project version
+  default: "0.1.0"
+
+runtime_dependencies:
+  type: yaml
+  help: Runtime dependency list
+  default: []

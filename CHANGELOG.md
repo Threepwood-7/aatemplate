@@ -1,0 +1,103 @@
+# Changelog
+
+## v1.5.7 - 2026-03-06
+- Added `*.log` to standardized `.gitignore` rules for template and project repos.
+- Ensures runtime log files remain untracked by default across all managed projects.
+
+## v1.5.6 - 2026-03-06
+- Added Windows companion bootstrap script: `scripts/windows/setup_env.py`.
+- `run_app_gui.pyw` now attempts env bootstrap through `setup_env.py` when `.venv` is missing.
+- Removed direct `windll.user32` usage from GUI launcher error reporting.
+- Updated template policy/docs to require and document `setup_env.py`.
+
+## v1.5.5 - 2026-03-06
+- Updated `run_app_gui.pyw` launcher behavior to avoid invoking `hatch` at runtime.
+- GUI launcher now starts the app directly via `.venv\\Scripts\\pythonw.exe -m <package>`.
+- Keeps Windows GUI launch console-free while preserving Python-only launcher policy.
+
+## v1.5.4 - 2026-03-06
+- Switched Windows GUI launcher to `scripts/windows/run_app_gui.pyw`.
+- Initial detached GUI launcher behavior update.
+- Updated template policy and docs to require/reference `run_app_gui.pyw`.
+
+## v1.5.3 - 2026-03-06
+- Standardized `README.md` legal disclaimer content using canonical marker block:
+  - `<!-- legal-disclaimer:start -->`
+  - `<!-- legal-disclaimer:end -->`
+- Added canonical source text at `aatemplate/legal_disclaimer.md`.
+- Updated template README to include the standardized legal disclaimer block.
+- Expanded policy checker to require:
+  - tracked `README.md`
+  - legal disclaimer markers in `README.md`
+  - exact canonical disclaimer content between markers.
+
+## v1.5.2 - 2026-03-06
+- Updated policy checker to disallow tracked `.ps1` scripts in addition to `.cmd`.
+- Updated project standard prompt to require Python-only script runners (no `.cmd` or `.ps1` wrappers).
+- Updated agent context to persist the same no-`.cmd`/no-`.ps1` rule for template outputs.
+
+## v1.5.1 - 2026-03-06
+- Removed `w_ignore_prompt*.txt` from template and synced project `.gitignore` files.
+- Removed `.everything_sdk/` from template and synced project `.gitignore` files.
+
+## v1.5.0 - 2026-03-05
+- Standardized TOML app config contract for Copier-managed projects:
+  - tracked `config/app.defaults.toml`
+  - tracked `config/app.example.toml`
+  - untracked `config/app.local.toml`
+- Updated template `.gitignore` to ignore local config overrides and secrets under `config/`.
+- Expanded template README with config precedence, env variables, and OS secret-path conventions.
+- Expanded policy checker to:
+  - reject legacy root runtime config filenames (`config.toml`, `*_config.toml`, etc.)
+  - reject tracked `config/app.local.toml`
+  - conditionally enforce canonical `config/app.defaults.toml` and `config/app.example.toml`.
+
+## v1.4.0 - 2026-03-05
+- Removed standardized `.cmd` launch/test wrappers.
+- Added Python runner scripts:
+  - `scripts/windows/run_app.py`
+  - `scripts/windows/run_app_gui.py`
+  - `scripts/windows/run_tests.py`
+- Updated policy checks to disallow legacy `.cmd` scripts entirely.
+- Updated template documentation to use Python runner invocations.
+
+## v1.3.0 - 2026-03-05
+- Added strict project policy checker at `scripts/policy/check_standard.py` and wired it into:
+  - `hatch run lint:policy`
+  - `hatch run lint:all`
+  - CI lint job
+  - pre-commit local hook
+- Added Ruff naming enforcement (`N` rules) for more uniform identifier style.
+- Added pre-commit hooks:
+  - `check-case-conflict`
+  - `check-illegal-windows-names`
+- Updated template README quick commands with `lint:policy` and standardized Windows helper scripts.
+
+## v1.2.0 - 2026-03-05
+- Added standardized Windows script launchers for Copier-managed projects:
+  - `scripts/windows/run-app.cmd`
+  - `scripts/windows/run-app-gui.cmd`
+  - `scripts/windows/run-tests.cmd`
+- Added template `src/<package>/__main__.py` and standardized app launch contract as `python -m <package>`.
+- Added Copier `_skip_if_exists` rule for `src/*/__main__.py` to preserve customized entrypoints.
+
+## v1.1.1 - 2026-03-05
+- Added `PySide6>=6.10.2` and `qbittorrent-api>=2025.11.1` to standardized Hatch `default` and `test` environment dependencies.
+- Enables consistent GUI/API test tooling across Copier-managed projects.
+
+## v1.1.0 - 2026-03-05
+- Added Copier `_skip_if_exists` rules for `README.md` and `src/*/__init__.py`.
+- Prevents future `copier update` runs from clobbering project-specific docs and package init behavior.
+
+## v1.0.2 - 2026-03-05
+- Expanded baseline `.gitignore` to ignore local workspace-only artifacts.
+
+## v1.0.1 - 2026-03-05
+- Updated starter generated test to a package import smoke test.
+- Keeps compatibility when existing package `__init__.py` is preserved.
+
+## v1.0.0 - 2026-03-05
+- Initial Copier template release.
+- Standardized Python 3.13 Hatch+uv project scaffold.
+- Ruff + basedpyright strict + pytest-cov + pre-commit baseline.
+- Windows-first CI with `main`/`master` branch filters.
