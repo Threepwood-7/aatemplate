@@ -17,6 +17,9 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+{% if project_kind == "qt_app" %}
+  "threep-commons @ git+https://github.com/Threepwood-7/threep-commons@v0.1.0",
+{% endif %}
 {% for dep in runtime_dependencies %}
   "{{ dep }}",
 {% endfor %}
@@ -37,9 +40,10 @@ packages = ["src/{{ package_name }}"]
 dependencies = [
   "pytest>=8.0",
   "pytest-cov>=5.0",
+{% if project_kind == "qt_app" %}
   "pytest-qt>=4.4",
   "PySide6>=6.10.2",
-  "qbittorrent-api>=2025.11.1",
+{% endif %}
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -74,9 +78,10 @@ all = [
 dependencies = [
   "pytest>=8.0",
   "pytest-cov>=5.0",
+{% if project_kind == "qt_app" %}
   "pytest-qt>=4.4",
   "PySide6>=6.10.2",
-  "qbittorrent-api>=2025.11.1",
+{% endif %}
 ]
 
 [[tool.hatch.envs.test.matrix]]
@@ -161,7 +166,9 @@ addopts = ["-ra", "--strict-markers", "--import-mode=importlib"]
 xfail_strict = true
 markers = [
   "integration: integration tests",
+{% if project_kind == "qt_app" %}
   "gui: GUI/Qt tests",
+{% endif %}
   "slow: slow tests",
 ]
 

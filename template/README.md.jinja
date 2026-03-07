@@ -5,16 +5,16 @@
 ## Table of Contents
 
 - [Features](#features)
-- [UI Walkthrough](#ui-walkthrough)
 - [Requirements](#requirements)
 - [Installation](#installation)
+{% if project_kind == "qt_app" %}
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Logging](#logging)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Menus](#menus)
+{% else %}
+- [Library Usage](#library-usage)
+{% endif %}
 - [Project Structure](#project-structure)
-- [Architecture](#architecture)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 - [Legal Disclaimer](#legal-disclaimer)
@@ -23,65 +23,35 @@
 
 <!-- TODO: List key capabilities as bullet points. -->
 
-## UI Walkthrough
-
-1. Overview state.
-
-   ![Overview](docs/images/ui-01-overview.png)
-
-   <!-- TODO: Describe what the overview screenshot shows. -->
-
-2. Workflow state.
-
-   ![Workflow](docs/images/ui-02-workflow.png)
-
-   <!-- TODO: Describe what the workflow screenshot shows. -->
-
-3. Detail/action state.
-
-   ![Details](docs/images/ui-03-details.png)
-
-   <!-- TODO: Describe what the detail screenshot shows. -->
-
 ## Requirements
 
-- **Windows** (10 or later)
 - **Python 3.13+**
-<!-- TODO: Add external dependencies (ffprobe, qBittorrent, etc.) if any. -->
+{% if project_kind == "qt_app" %}
+- **Windows** (10 or later)
+{% endif %}
 
 ## Installation
-
-### First-time Setup
 
 ```bat
 python scripts\windows\setup_env.py
 ```
 
-Creates the `.venv` by running `uv sync --locked` (falls back to `uv sync` if no lockfile).
+Creates the local `.venv` by running `uv sync --locked` and falls back to `uv sync` when no lockfile is available yet.
 
-Manual alternative for development:
+Manual development alternative:
 
 ```bat
 uv sync --group dev
 ```
 
+{% if project_kind == "qt_app" %}
 ## Usage
 
-### Recommended (console-less)
+### Recommended
 
 ```bat
 pyw scripts\windows\run_app_gui.pyw
 ```
-
-Launches the GUI without a console window. Auto-bootstraps the `.venv` via `setup_env.py` if not yet created.
-
-### With console
-
-```bat
-python scripts\windows\run_app.py
-```
-
-Runs via `hatch run python -m {{ package_name }}`. Requires `hatch` in PATH.
 
 ### Direct
 
@@ -91,62 +61,31 @@ python -m {{ package_name }}
 
 ## Configuration
 
-### TOML app config (when used)
+Application identity is defined in `src/{{ package_name }}/constants.py` and passed directly to `threep_commons`.
 
-Projects that use TOML app configuration follow this contract:
-
-- tracked defaults: `config/app.defaults.toml`
-- tracked template: `config/app.example.toml`
-- untracked local overrides: `config/app.local.toml`
-
-Runtime precedence:
-
-1. `config/app.defaults.toml`
-2. `config/app.local.toml` (or `APP_CONFIG_PATH` when set)
-3. secret file (`APP_SECRETS_PATH` or OS user path)
-4. environment secret overrides
-
-Secret file default locations:
-
-- Windows: `%APPDATA%/<app>/secrets.toml`
-
-Global optional env vars:
-
-- `APP_CONFIG_PATH`
-- `APP_SECRETS_PATH`
-
-### QSettings runtime config (Qt/PySide apps)
-
-For Qt apps that persist settings with QSettings, use this convention:
-
-- backend: `QSettings(IniFormat, UserScope, "ThreepSoftwz", "<package_name>")`
-- default INI path (Windows): `%APPDATA%\ThreepSoftwz\<package_name>.ini`
-- default non-INI runtime data root (Windows): `%LOCALAPPDATA%\ThreepSoftwz\<package_name>\`
-
-Override contract (OV01):
-
-- `CONFIG_DIR`: overrides INI directory (resolved as `<CONFIG_DIR>\<package_name>.ini`)
-- `DATA_DIR`: overrides non-INI runtime root (resolved as `<DATA_DIR>\<package_name>\...`)
+- configure QSettings with `threep_commons.paths.configure_qsettings(APP_IDENTITY, config_dir_override=...)`
+- resolve runtime storage with `threep_commons.paths.resolve_app_data_dir(APP_IDENTITY, override_dir=...)`
+- use `CONFIG_DIR` and `DATA_DIR` for environment overrides
 
 ## Logging
 
-Runtime logging is initialized through `{{ package_name }}.utils.logging_config.setup_logging()`.
+Initialize runtime logging directly through `threep_commons.logging`.
 
-- logger naming convention: `logging.getLogger(__name__)`
-- rotating file logs under runtime data path: `<DATA_DIR>\<package_name>\logs\{{ package_name }}.log`
-- console logging enabled by default for local troubleshooting
+```python
+from {{ package_name }}.constants import APP_IDENTITY
+from threep_commons.logging import setup_logging_from_identity
 
-## Keyboard Shortcuts
+setup_logging_from_identity(APP_IDENTITY)
+```
+{% else %}
+## Library Usage
 
-<!-- TODO: Add shortcut table. -->
+Import reusable modules directly from `{{ package_name }}` and keep APIs organized by concern.
 
-| Key | Action |
-|---|---|
-| Alt+X | Exit application |
-
-## Menus
-
-<!-- TODO: Document menu bar structure. -->
+```python
+from {{ package_name }} import __version__
+```
+{% endif %}
 
 ## Project Structure
 
@@ -156,51 +95,42 @@ Runtime logging is initialized through `{{ package_name }}.utils.logging_config.
 |-- uv.lock
 |-- src/
 |   `-- {{ package_name }}/
-|       |-- constants.py
 |       |-- __init__.py
 |       |-- __main__.py
-|       |-- runtime_paths.py
-|       |-- py.typed
-|       `-- utils/
-|           |-- __init__.py
-|           `-- logging_config.py
+{% if project_kind == "qt_app" %}
+|       |-- constants.py
+{% endif %}
+|       `-- py.typed
 |-- scripts/
 |   |-- policy/
 |   |   `-- check_standard.py
 |   `-- windows/
+{% if project_kind == "qt_app" %}
 |       |-- run_app.py
 |       |-- run_app_gui.pyw
+{% endif %}
 |       |-- run_tests.py
 |       `-- setup_env.py
 |-- tests/
 |   |-- __init__.py
+{% if project_kind == "qt_app" %}
 |   |-- conftest.py
+{% endif %}
 |   |-- test_{{ package_name }}.py
 |   |-- unit/
 |   |   `-- __init__.py
-|   |-- integration/
-|   |   `-- __init__.py
+|   `-- integration/
+{% if project_kind == "qt_app" %}
+|       |-- __init__.py
 |   `-- gui/
 |       `-- __init__.py
+{% else %}
+|       `-- __init__.py
+{% endif %}
 `-- .pre-commit-config.yaml
 ```
 
-## Architecture
-
-<!-- TODO: Describe module layout, threading model, key design decisions. -->
-
 ## Development
-
-### Windows Helpers
-
-| Script | Description |
-|---|---|
-| `python scripts\windows\setup_env.py` | Create/verify `.venv` via `uv sync --locked` |
-| `pyw scripts\windows\run_app_gui.pyw` | Launch GUI without console window (auto-bootstraps venv) |
-| `python scripts\windows\run_app.py` | Launch app via `hatch run` (requires hatch in PATH) |
-| `python scripts\windows\run_tests.py` | Run test suite via `hatch run test` |
-
-### Daily Commands
 
 ```bat
 hatch run test
@@ -211,13 +141,6 @@ hatch run lint:types
 hatch run lint:policy
 hatch run lint:all
 hatch build
-```
-
-### Lockfile Workflow
-
-```bat
-uv lock
-uv lock --check
 ```
 
 ## Troubleshooting

@@ -23,8 +23,8 @@ REQUIREMENTS OVERVIEW
 - Naming style enforcement: Ruff pep8-naming (`N` rules)
 - Naming conventions: kebab-case `project.name`, snake_case package directory under `src/`
 - Type checking: basedpyright strict
-- Testing: pytest + pytest-cov + pytest-qt
-- Test helper deps in Hatch envs: PySide6>=6.10.2, qbittorrent-api>=2025.11.1
+- Testing: pytest + pytest-cov (+ pytest-qt for `qt_app` outputs)
+- Test helper deps in Hatch envs: PySide6>=6.10.2 for `qt_app`; repo-specific extras only when needed
 - Git hooks: pre-commit (including local policy + gitleaks)
 - CI: GitHub Actions on windows-latest
 - CI trigger branches: main and master
@@ -68,8 +68,8 @@ DIRECTORY STRUCTURE
 |  |- test_{PACKAGE_NAME}.py
 |- scripts/windows/
 |  |- setup_env.py
-|  |- run_app.py
-|  |- run_app_gui.pyw
+|  |- run_app.py                         # qt_app only
+|  |- run_app_gui.pyw                    # qt_app only
 |  |- run_tests.py
 |- scripts/policy/
 |  |- check_standard.py
@@ -94,9 +94,8 @@ FILE REQUIREMENTS
    - [tool.hatch.envs.default.dependencies] includes:
      pytest>=8.0
      pytest-cov>=5.0
-     pytest-qt>=4.4
-     PySide6>=6.10.2
-     qbittorrent-api>=2025.11.1
+     pytest-qt>=4.4                      # qt_app only
+     PySide6>=6.10.2                     # qt_app only
    - [tool.hatch.envs.default.scripts]:
      test = "pytest {args:tests}"
      test-cov = "pytest --cov=src/{PACKAGE_NAME} --cov-report=term-missing --cov-report=xml {args:tests}"
@@ -147,7 +146,7 @@ FILE REQUIREMENTS
    - blocking lint job running lint/fmt/types/policy and gitleaks
    - blocking test job running test-cov
 
-7) scripts/windows/run_app.py:
+7) scripts/windows/run_app.py (qt_app only):
    - resolves repo root from script location
    - checks hatch is on PATH
    - runs: hatch run python -m {PACKAGE_NAME} <args>
@@ -158,7 +157,7 @@ FILE REQUIREMENTS
    - may retry with `uv sync` if lock sync fails
    - must verify `.venv\Scripts\pythonw.exe` exists at the end
 
-9) scripts/windows/run_app_gui.pyw:
+9) scripts/windows/run_app_gui.pyw (qt_app only):
    - launches directly via local venv pythonw (no hatch process):
      .venv\Scripts\pythonw.exe -m {PACKAGE_NAME} <args>
    - if pythonw is missing, must attempt:
@@ -247,7 +246,9 @@ RULES TO ENFORCE
 1. Commit uv.lock and .copier-answers.yml.
 2. Keep exactly one package directory under src/.
 3. Keep required tracked root files: .python-version, .editorconfig, .gitattributes, .pre-commit-config.yaml, pyproject.toml, README.md.
-4. Keep required tracked Windows runners: scripts/windows/setup_env.py, scripts/windows/run_app.py, scripts/windows/run_app_gui.pyw, scripts/windows/run_tests.py.
+4. Keep required tracked Windows runners:
+   - always: scripts/windows/setup_env.py, scripts/windows/run_tests.py
+   - qt_app only: scripts/windows/run_app.py, scripts/windows/run_app_gui.pyw
 5. Keep package root files: src/{PACKAGE_NAME}/__init__.py, src/{PACKAGE_NAME}/__main__.py, src/{PACKAGE_NAME}/py.typed.
 6. Keep tests/__init__.py and use test filenames test_*.py under tests/.
 7. Keep src module filenames lowercase snake_case (*.py).
@@ -281,8 +282,8 @@ VALIDATION CHECKLIST
 - hatch build
 - python scripts\windows\run_tests.py (Windows smoke check)
 - python scripts\windows\setup_env.py (Windows env bootstrap)
-- python scripts\windows\run_app.py (Windows smoke check)
-- pyw scripts\windows\run_app_gui.pyw (Windows smoke check)
+- python scripts\windows\run_app.py (Windows smoke check, qt_app only)
+- pyw scripts\windows\run_app_gui.pyw (Windows smoke check, qt_app only)
 ````
 
 ---

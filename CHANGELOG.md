@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.0 - 2026-03-07
+- Added Copier `project_kind` mode support with `qt_app` and `shared_lib`.
+- Removed generated `runtime_paths.py` and `utils/logging_config.py` wrappers from app outputs.
+- Added direct `threep-commons` dependency wiring for `qt_app` outputs.
+- Updated generated app constants to expose `APP_IDENTITY`, `SETTINGS_ORG_NAME`, and `SETTINGS_APP_NAME`.
+- Made policy checks mode-aware for shared-library outputs and removed wrapper-file requirements.
+- Removed hardcoded `qbittorrent-api` from standardized Hatch test/default dependency lists.
+
 ## v1.6.4 - 2026-03-07
 - Expanded template policy checks:
   - reject UTF-8 BOM in tracked text files

@@ -12,6 +12,11 @@ project_name:
   type: str
   help: Project directory and distribution name in kebab-case (e.g. my-project)
 
+project_kind:
+  type: str
+  help: Project kind (`qt_app` or `shared_lib`)
+  default: "qt_app"
+
 package_name:
   type: str
   help: Python package name in snake_case (underscores)
