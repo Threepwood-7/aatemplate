@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.7.1 - 2026-03-07
+- Enabled `tool.hatch.metadata.allow-direct-references = true` in generated projects so app-mode repos can install pinned Git URL dependencies.
+
 ## v1.7.0 - 2026-03-07
 - Added Copier `project_kind` mode support with `qt_app` and `shared_lib`.
 - Removed generated `runtime_paths.py` and `utils/logging_config.py` wrappers from app outputs.

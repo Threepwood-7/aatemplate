@@ -33,6 +33,9 @@ Issues = "https://github.com/{{ github_username }}/{{ project_name }}/issues"
 [tool.hatch.env]
 installer = "uv"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/{{ package_name }}"]
 
