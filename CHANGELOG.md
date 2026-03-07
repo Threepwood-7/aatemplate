@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.6.4 - 2026-03-07
+- Expanded template policy checks:
+  - reject UTF-8 BOM in tracked text files
+  - enforce `src/<package>/__main__.py` contract:
+    - `from __future__ import annotations`
+    - `if __name__ == "__main__":`
+    - `raise SystemExit(main())`
+  - reject module/package name collisions such as `utils.py` with `utils/__init__.py`.
+
 ## v1.6.3 - 2026-03-07
 - Fixed `runtime_paths.py` scaffold regression in v1.6.1/v1.6.2:
   - restored `configure_qsettings`
