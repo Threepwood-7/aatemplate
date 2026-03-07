@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.6.3 - 2026-03-07
+- Fixed `runtime_paths.py` scaffold regression in v1.6.1/v1.6.2:
+  - restored `configure_qsettings`
+  - restored `resolve_config_root`, `resolve_data_root`, and `resolve_app_data_dir`
+  - kept `get_config_dir`, `get_data_dir`, `get_log_dir`, and `get_settings_ini_path`
+    as compatibility wrappers.
+
 ## v1.6.1 - 2026-03-06
 - Switched template to module-first entrypoint policy:
   - removed required `src/<package>/main.py` scaffold
