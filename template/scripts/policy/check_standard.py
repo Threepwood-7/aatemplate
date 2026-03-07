@@ -382,12 +382,15 @@ def collect_docstring_guidance(
                         f"Docstring guidance: add class docstring for '{node.name}' in {rel}:{node.lineno}."
                     )
                     warning_count += 1
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if _is_public_name(node.name) and ast.get_docstring(node) is None:
-                    warnings.append(
-                        f"Docstring guidance: add function docstring for '{node.name}' in {rel}:{node.lineno}."
-                    )
-                    warning_count += 1
+            elif (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and _is_public_name(node.name)
+                and ast.get_docstring(node) is None
+            ):
+                warnings.append(
+                    f"Docstring guidance: add function docstring for '{node.name}' in {rel}:{node.lineno}."
+                )
+                warning_count += 1
 
             if warning_count >= MAX_DOCSTRING_WARNINGS:
                 truncated = True
