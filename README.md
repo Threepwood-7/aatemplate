@@ -31,5 +31,5 @@ uvx copier update --trust --defaults --vcs-ref <TEMPLATE_TAG>
 ## Notes
 
 - `aatemplate` is the template source repository.
-- Sibling repositories in `c:\prj\p2p\ongithub` are template targets.
+- Sibling repositories under this directory are template targets.
 - Rollout procedure: [`COPIER_ROLLOUT_RUNBOOK.md`](COPIER_ROLLOUT_RUNBOOK.md).
