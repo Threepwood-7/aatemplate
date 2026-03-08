@@ -15,6 +15,7 @@
 - [Library Usage](#library-usage)
 {% endif %}
 - [Project Structure](#project-structure)
+- [Architecture Patterns](#architecture-patterns)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 - [Legal Disclaimer](#legal-disclaimer)
@@ -128,6 +129,13 @@ from {{ package_name }} import __version__
 {% endif %}
 `-- .pre-commit-config.yaml
 ```
+
+## Architecture Patterns
+
+- Keep top-level window/dialog classes thin and delegate feature logic to focused collaborators.
+- Split large concerns into separate modules (actions/layout/operations/persistence/status) while preserving public imports.
+- Split GUI tests by feature domain instead of building one large end-to-end test file.
+- See `docs/architecture/qt_composition_playbook.md` for the reusable Qt decomposition workflow.
 
 ## Development
 

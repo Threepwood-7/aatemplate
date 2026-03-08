@@ -11,6 +11,7 @@ This template has also been a learning process for me, and it keeps improving as
 - Hatch + uv workflow
 - Ruff + basedpyright strict + pytest baseline
 - Copier modes for `qt_app` and `shared_lib`
+- Qt composition playbook for decomposing large UI orchestrators into focused collaborators
 - Naming conventions: kebab-case project names, snake_case package/module names, and Qt override allow-list in Ruff
 - Windows-first CI
 - Policy enforcement via `scripts/policy/check_standard.py`

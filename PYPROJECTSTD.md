@@ -29,6 +29,7 @@ REQUIREMENTS OVERVIEW
 - CI: GitHub Actions on windows-latest
 - CI trigger branches: main and master
 - Template sync: Copier
+- Qt architecture decomposition guidance for large UI classes (playbook-driven, warning-level policy)
 - Python pinning: .python-version
 - LF line endings for tracked text files
 - No setup.py/setup.cfg/requirements*.txt
@@ -269,6 +270,7 @@ RULES TO ENFORCE
 18. Enforce policy checks via scripts/policy/check_standard.py in CI and pre-commit.
 19. Enforce README legal disclaimer markers and exact canonical content from aatemplate/legal_disclaimer.md.
 20. Do not reintroduce deprecated template ignore entries: w_ignore_prompt*.txt and .everything_sdk/.
+21. Keep oversized class/function checks as warning-level architecture guidance (non-blocking).
 
 VALIDATION CHECKLIST
 - hatch run lint:check
