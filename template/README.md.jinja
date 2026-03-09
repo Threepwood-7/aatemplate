@@ -37,7 +37,7 @@
 python scripts\windows\setup_env.py
 ```
 
-Creates the local `.venv` by running `uv sync --locked` and falls back to `uv sync` when no lockfile is available yet.
+Synchronizes the local `.venv` by running `uv sync --locked` on each launch of the setup script and falls back to `uv sync` when lock sync is unavailable (for example, first bootstrap before `uv.lock` exists).
 
 Manual development alternative:
 
