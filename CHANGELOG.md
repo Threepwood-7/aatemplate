@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.7.3 - 2026-03-11
+- Bumped generated `threep-commons` app dependency pins from `v0.1.0` to `v0.2.0` for the Windows storage commons rollout.
+
 ## v1.7.1 - 2026-03-07
 - Enabled `tool.hatch.metadata.allow-direct-references = true` in generated projects so app-mode repos can install pinned Git URL dependencies.
 
