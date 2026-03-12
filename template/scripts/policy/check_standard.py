@@ -118,7 +118,20 @@ MAX_DOCSTRING_WARNINGS = 20
 LEGAL_DISCLAIMER_REQUIRED = """
 ## Legal Disclaimer
 
-THIS SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, OR QUIET ENJOYMENT. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHORS, CONTRIBUTORS, MAINTAINERS, DISTRIBUTORS, AND AFFILIATED PARTIES SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF DATA, PROFITS, GOODWILL, BUSINESS OPPORTUNITY, OR SERVICE INTERRUPTION, ARISING OUT OF OR RELATING TO THE USE OF, OR INABILITY TO USE, THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THIS SOFTWARE HAS BEEN DEVELOPED, IN WHOLE OR IN PART, BY "INTELLIGENT TOOLS"; ACCORDINGLY, OUTPUTS MAY CONTAIN ERRORS OR OMISSIONS, AND YOU ASSUME FULL RESPONSIBILITY FOR INDEPENDENT VALIDATION, TESTING, LEGAL COMPLIANCE, AND SAFE OPERATION PRIOR TO ANY RELIANCE OR DEPLOYMENT.
+THIS SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES OF ANY
+KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING, WITHOUT
+LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, OR QUIET ENJOYMENT. TO THE MAXIMUM
+EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHORS, CONTRIBUTORS, MAINTAINERS,
+DISTRIBUTORS, AND AFFILIATED PARTIES SHALL NOT BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR
+FOR ANY LOSS OF DATA, PROFITS, GOODWILL, BUSINESS OPPORTUNITY, OR SERVICE
+INTERRUPTION, ARISING OUT OF OR RELATING TO THE USE OF, OR INABILITY TO USE, THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THIS SOFTWARE HAS
+BEEN DEVELOPED, IN WHOLE OR IN PART, BY "INTELLIGENT TOOLS"; ACCORDINGLY, OUTPUTS
+MAY CONTAIN ERRORS OR OMISSIONS, AND YOU ASSUME FULL RESPONSIBILITY FOR
+INDEPENDENT VALIDATION, TESTING, LEGAL COMPLIANCE, AND SAFE OPERATION PRIOR TO
+ANY RELIANCE OR DEPLOYMENT.
 """
 
 
@@ -131,7 +144,9 @@ def run_command(repo_root: Path, args: list[str]) -> str:
         text=True,
     )
     if proc.returncode != 0:
-        raise RuntimeError(proc.stderr.strip() or proc.stdout.strip() or "command failed")
+        raise RuntimeError(
+            proc.stderr.strip() or proc.stdout.strip() or "command failed"
+        )
     return proc.stdout
 
 
@@ -215,15 +230,20 @@ def validate_main_entrypoint_contract(
         errors.append(f"{main_rel} must include 'from __future__ import annotations'.")
 
     if not re.search(r"if __name__\s*==\s*['\"]__main__['\"]\s*:", content):
-        errors.append(f"{main_rel} must guard execution with if __name__ == \"__main__\":")
+        errors.append(
+            f'{main_rel} must guard execution with if __name__ == "__main__":'
+        )
 
     if not re.search(r"raise\s+SystemExit\(\s*main\(\)\s*\)", content):
-        errors.append(f"{main_rel} must end with 'raise SystemExit(main())' in the guard block.")
+        errors.append(
+            f"{main_rel} must end with 'raise SystemExit(main())' in the guard block."
+        )
 
 
 def check_legal_disclaimer(readme_content: str, errors: list[str]) -> None:
     pattern = re.compile(
-        rf"{re.escape(LEGAL_DISCLAIMER_START)}\s*(.*?)\s*{re.escape(LEGAL_DISCLAIMER_END)}",
+        rf"{re.escape(LEGAL_DISCLAIMER_START)}\s*(.*?)\s*"
+        rf"{re.escape(LEGAL_DISCLAIMER_END)}",
         flags=re.DOTALL,
     )
     match = pattern.search(normalize_newlines(readme_content))
@@ -238,7 +258,8 @@ def check_legal_disclaimer(readme_content: str, errors: list[str]) -> None:
     expected = normalize_newlines(LEGAL_DISCLAIMER_REQUIRED).strip()
     if actual != expected:
         errors.append(
-            "README.md legal disclaimer content does not match the canonical required block."
+            "README.md legal disclaimer content does not match the canonical "
+            "required block."
         )
 
 
@@ -343,7 +364,8 @@ def collect_silent_broad_exception_warnings(
             continue
         if SILENT_BROAD_EXCEPT_RE.search(content):
             warnings.append(
-                f"Silent broad exception guidance: replace 'except Exception: pass' in {rel} "
+                "Silent broad exception guidance: replace 'except Exception: "
+                f"pass' in {rel} "
                 "with logging or signal emission."
             )
 
@@ -383,7 +405,8 @@ def collect_docstring_guidance(
             if isinstance(node, ast.ClassDef):
                 if _is_public_name(node.name) and ast.get_docstring(node) is None:
                     warnings.append(
-                        f"Docstring guidance: add class docstring for '{node.name}' in {rel}:{node.lineno}."
+                        "Docstring guidance: add class docstring for "
+                        f"'{node.name}' in {rel}:{node.lineno}."
                     )
                     warning_count += 1
             elif (
@@ -392,7 +415,8 @@ def collect_docstring_guidance(
                 and ast.get_docstring(node) is None
             ):
                 warnings.append(
-                    f"Docstring guidance: add function docstring for '{node.name}' in {rel}:{node.lineno}."
+                    "Docstring guidance: add function docstring for "
+                    f"'{node.name}' in {rel}:{node.lineno}."
                 )
                 warning_count += 1
 
@@ -485,7 +509,10 @@ def main() -> int:
         tracked = tracked_files(repo_root)
         eol_lines = tracked_eol_lines(repo_root)
     except RuntimeError as exc:
-        print(f"Policy check failed: unable to inspect git-tracked files ({exc}).", file=sys.stderr)
+        print(
+            f"Policy check failed: unable to inspect git-tracked files ({exc}).",
+            file=sys.stderr,
+        )
         return 1
 
     tracked_set = set(tracked)
@@ -502,7 +529,10 @@ def main() -> int:
         )
 
     if len(src_packages) != 1:
-        errors.append(f"Expected exactly one package directory under src/, found {len(src_packages)}.")
+        errors.append(
+            "Expected exactly one package directory under src/, found "
+            f"{len(src_packages)}."
+        )
         package_name = ""
     else:
         package_name = src_packages[0].name
@@ -521,15 +551,28 @@ def main() -> int:
             errors.append(f"project.name must be kebab-case: {project_name}")
 
         tool_table = require_table(pyproject, "tool", errors, "tool")
-        basedpyright_table = require_table(tool_table, "basedpyright", errors, "tool.basedpyright")
-        if basedpyright_table and basedpyright_table.get("typeCheckingMode") != "strict":
+        basedpyright_table = require_table(
+            tool_table,
+            "basedpyright",
+            errors,
+            "tool.basedpyright",
+        )
+        if (
+            basedpyright_table
+            and basedpyright_table.get("typeCheckingMode") != "strict"
+        ):
             errors.append("tool.basedpyright.typeCheckingMode must be strict")
 
         ruff_table = require_table(tool_table, "ruff", errors, "tool.ruff")
         if ruff_table:
             lint_table = require_table(ruff_table, "lint", errors, "tool.ruff.lint")
             if lint_table:
-                select_rules = require_string_list(lint_table, "select", errors, "tool.ruff.lint")
+                select_rules = require_string_list(
+                    lint_table,
+                    "select",
+                    errors,
+                    "tool.ruff.lint",
+                )
                 if select_rules and REQUIRED_NAMING_RULE not in set(select_rules):
                     errors.append("tool.ruff.lint.select must include naming rule 'N'")
 
@@ -547,23 +590,31 @@ def main() -> int:
                         "tool.ruff.lint.pep8-naming",
                     )
                     if ignore_names:
-                        missing_ignores = sorted(REQUIRED_QT_NAMING_IGNORES - set(ignore_names))
+                        missing_ignores = sorted(
+                            REQUIRED_QT_NAMING_IGNORES - set(ignore_names)
+                        )
                         if missing_ignores:
                             errors.append(
-                                "tool.ruff.lint.pep8-naming.ignore-names is missing required Qt "
+                                "tool.ruff.lint.pep8-naming.ignore-names is "
+                                "missing required Qt "
                                 f"exceptions: {', '.join(missing_ignores)}"
                             )
 
         pytest_table = tool_table.get("pytest", {}).get("ini_options", {})
         if not isinstance(pytest_table, dict):
-            errors.append("Missing or invalid [tool.pytest.ini_options] table in pyproject.toml")
+            errors.append(
+                "Missing or invalid [tool.pytest.ini_options] table in "
+                "pyproject.toml"
+            )
         else:
             testpaths = pytest_table.get("testpaths")
             if not isinstance(testpaths, list) or "tests" not in testpaths:
                 errors.append("tool.pytest.ini_options.testpaths must include 'tests'")
 
             markers = pytest_table.get("markers")
-            if not isinstance(markers, list) or not all(isinstance(item, str) for item in markers):
+            if not isinstance(markers, list) or not all(
+                isinstance(item, str) for item in markers
+            ):
                 required_marker_names = sorted(required_pytest_markers(project_kind))
                 errors.append(
                     "tool.pytest.ini_options.markers must be a list containing "
@@ -571,7 +622,9 @@ def main() -> int:
                 )
             else:
                 configured_markers = {parse_marker_name(item) for item in markers}
-                missing_markers = sorted(required_pytest_markers(project_kind) - configured_markers)
+                missing_markers = sorted(
+                    required_pytest_markers(project_kind) - configured_markers
+                )
                 if missing_markers:
                     errors.append(
                         "tool.pytest.ini_options.markers is missing required markers: "
@@ -587,7 +640,10 @@ def main() -> int:
         try:
             readme_content = readme_path.read_text(encoding="utf-8", errors="ignore")
         except OSError as exc:
-            errors.append(f"Unable to read README.md for legal disclaimer policy: {exc}")
+            errors.append(
+                "Unable to read README.md for legal disclaimer policy: "
+                f"{exc}"
+            )
         else:
             check_legal_disclaimer(readme_content, errors)
 
@@ -609,7 +665,9 @@ def main() -> int:
             rel_dir = test_dir.relative_to(repo_root).as_posix()
             init_file = test_dir / "__init__.py"
             if not init_file.is_file():
-                errors.append(f"Missing __init__.py in test package directory: {rel_dir}")
+                errors.append(
+                    f"Missing __init__.py in test package directory: {rel_dir}"
+                )
     else:
         errors.append("Missing tests/ directory")
 
@@ -619,13 +677,19 @@ def main() -> int:
             errors.append("Missing tests/conftest.py")
         else:
             try:
-                conftest_content = conftest_path.read_text(encoding="utf-8", errors="ignore")
+                conftest_content = conftest_path.read_text(
+                    encoding="utf-8",
+                    errors="ignore",
+                )
             except OSError as exc:
-                errors.append(f"Unable to read tests/conftest.py for fixture policy: {exc}")
+                errors.append(
+                    f"Unable to read tests/conftest.py for fixture policy: {exc}"
+                )
             else:
                 if not WINDOW_FIXTURE_RE.search(conftest_content):
                     errors.append(
-                        "tests/conftest.py must define a shared @pytest.fixture def window(...)"
+                        "tests/conftest.py must define a shared @pytest.fixture "
+                        "def window(...)"
                     )
 
     if package_name:
@@ -641,14 +705,20 @@ def main() -> int:
                     errors="ignore",
                 )
             except OSError as exc:
-                errors.append(f"Unable to read {package_init_file} for __all__ policy: {exc}")
+                errors.append(
+                    f"Unable to read {package_init_file} for __all__ policy: {exc}"
+                )
             else:
                 if not ALL_EXPORT_RE.search(package_init_content):
-                    errors.append(f"Missing required __all__ export list in {package_init_file}")
+                    errors.append(
+                        "Missing required __all__ export list in "
+                        f"{package_init_file}"
+                    )
         validate_main_entrypoint_contract(repo_root, package_name, tracked_set, errors)
         if has_module_package_name_collisions(tracked, package_name):
             errors.append(
-                f"Module/package collision detected in src/{package_name}: avoid name pairs like "
+                "Module/package collision detected in "
+                f"src/{package_name}: avoid name pairs like "
                 "'utils.py' and 'utils/__init__.py'."
             )
 
@@ -719,13 +789,19 @@ def main() -> int:
             except OSError:
                 continue
             if banned_launch_ref in content:
-                errors.append(f"Found deprecated launch reference '{banned_launch_ref}' in {rel}")
+                errors.append(
+                    f"Found deprecated launch reference '{banned_launch_ref}' "
+                    f"in {rel}"
+                )
 
     gitattributes_path = repo_root / ".gitattributes"
     if gitattributes_path.exists():
         content = gitattributes_path.read_text(encoding="utf-8", errors="ignore")
         if not re.search(r"^\*\s+text=auto\s+eol=lf\s*$", content, flags=re.MULTILINE):
-            errors.append("Missing canonical LF rule in .gitattributes: '* text=auto eol=lf'")
+            errors.append(
+                "Missing canonical LF rule in .gitattributes: '* text=auto "
+                "eol=lf'"
+            )
     else:
         errors.append("Missing .gitattributes")
 
