@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.4 - 2026-03-13
+- Fixed generated Windows helper scripts to satisfy Ruff line-length checks in fresh renders.
+- Restored generated `.copier-answers.yml` output so policy checks can infer `project_kind` correctly.
+- Added a Copier post-render/update `uv lock` task so fresh generated projects include `uv.lock` and pass policy checks without a manual lock step.
+
 ## v1.7.3 - 2026-03-11
 - Bumped generated `threep-commons` app dependency pins from `v0.1.0` to `v0.2.0` for the Windows storage commons rollout.
 

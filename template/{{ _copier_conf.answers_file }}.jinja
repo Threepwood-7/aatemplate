@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier.
+_src_path: "{{ _src_path }}"
+_commit: "{{ _commit }}"
+project_name: "{{ project_name }}"
+project_kind: "{{ project_kind }}"
+package_name: "{{ package_name }}"
+description: "{{ description }}"
+author_name: "{{ author_name }}"
+author_email: "{{ author_email }}"
+github_username: "{{ github_username }}"
+project_version: "{{ project_version }}"
+runtime_dependencies:
+{% for dep in runtime_dependencies %}
+  - "{{ dep }}"
+{% endfor %}

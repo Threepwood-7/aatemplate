@@ -1,6 +1,9 @@
 _answers_file: .copier-answers.yml
 _subdirectory: template
 _templates_suffix: .jinja
+_tasks:
+  - command: ["uv", "lock"]
+    when: "{{ _copier_operation in ['copy', 'update'] }}"
 _skip_if_exists:
   - README.md
   - src/*/__init__.py
